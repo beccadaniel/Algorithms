@@ -3,66 +3,108 @@ package datastructures;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-/* This class does breadth first search (BFS) traversal from a given source vertex.
-*  A collection of a node's neighbouring vertices is known as adjacency list.
-* */
+/**
+ * An adjacency list or matrix is used to represent the graph
+ */
 public class Graph {
-    // no of vertices in the graph
-    private int V;
-    // adjacency list i.e neighbouring node of a node
-    private LinkedList<Integer> adj[];
-
-    public static void main(String[] args) {
-        Graph g = new Graph(4);
-        g.addEdge(0,1);
-        g.addEdge(0,2);
-        g.addEdge(1,2);
-        g.addEdge(2,0);
-        g.addEdge(2,3);
-        g.addEdge(3,3);
-        g.BFS(2);
-    }
+    int vertices;
+    LinkedList<Integer>[] adjacencyListArray;
 
     Graph(int v) {
-        V = v;
-        // creates and adjacency list for all vertices
-        adj = new LinkedList[v];
+        this.vertices = v;
+        adjacencyListArray = new LinkedList[v];
+
         for (int i = 0; i < v; i++) {
-            adj[i] = new LinkedList<>();
+            adjacencyListArray[i] = new LinkedList<>();
         }
     }
 
-    // add edge to the graph or neighbours to adjacency list
-    void addEdge(int v, int w) {
-        adj[v].add(w);
+    // add edge for undirected graph
+    public void addUndirectedEdge(int src, int dest) {
+        adjacencyListArray[src].add(dest);
+        adjacencyListArray[dest].add(src);
     }
 
-    // BFS traversal from given source s
-    void BFS(int s) {
-        // set all vertices to not visited
-        boolean visited[] = new boolean[V];
+    // add edge to directed graph
+    public void addDirectedEdge(int src, int dest) {
+        adjacencyListArray[src].add(dest);
+    }
 
-        // queue for BFS
+    /**
+     * Breadth First Search of a graph
+     */
+    public LinkedList<Integer> bfs(int src) {
+        LinkedList<Integer> result = new LinkedList<>();
+
+        // Mark all vertices as non-visited
+        boolean[] visited = new boolean[vertices];
+
+        // create a queue for BFS
         LinkedList<Integer> queue = new LinkedList<>();
+        // mark current node as visited and enqueue
+        visited[src] = true;
+        queue.add(src);
 
-        // mark the current node as visited and put in the queue
-        visited[s] = true;
-        queue.add(s);
+        while (!queue.isEmpty()) {
+            // dequeue a vertex from the queue
+            src = queue.poll();
+            result.add(src);
 
-        while(queue.size() != 0) {
-            s = queue.poll(); // removes first element in queue
-            System.out.println(s + " ");
+            // get all the adjacent vertex of the dequeue vertex. If it has not been visited,
+            // mark it as visited and enqueue
+            Iterator<Integer> adjacents = adjacencyListArray[src].iterator();
 
-            // get the adj vertices of vertex s and if any of the adjacent vertex has not been visited,
-            // mark it as visited and add to the queue
-            Iterator<Integer> i = adj[s].listIterator();
-            while(i.hasNext()) {
-                int n = i.next();
+            while (adjacents.hasNext()) {
+                int n = adjacents.next();
                 if (!visited[n]) {
                     visited[n] = true;
                     queue.add(n);
                 }
             }
         }
+        return result;
+    }
+
+    /**
+     * Depth First Search of a graph
+     */
+    public LinkedList<Integer> dfsUtil(int src, boolean[] visited, LinkedList<Integer> result) {
+
+
+        // mark current node as visited
+        visited[src] = true;
+        result.add(src);
+
+        Iterator<Integer> adjacents = adjacencyListArray[src].iterator();
+        while(adjacents.hasNext()) {
+            int n = adjacents.next();
+            if (!visited[n]) {
+                dfsUtil(n, visited, result);
+            }
+        }
+        return result;
+    }
+
+    public LinkedList<Integer> dfs(int src) {
+        LinkedList<Integer> result = new LinkedList<>();
+
+        boolean[] visited = new boolean[vertices];
+        return dfsUtil(src, visited, result);
+    }
+    public static void main(String args[])
+    {
+        Graph g = new Graph(4);
+
+        g.addDirectedEdge(0, 1);
+        g.addDirectedEdge(0, 2);
+        g.addDirectedEdge(1, 2);
+        g.addDirectedEdge(2, 0);
+        g.addDirectedEdge(2, 3);
+        g.addDirectedEdge(3, 3);
+
+        System.out.println("Following is Depth First Traversal "+
+                "(starting from vertex 2)");
+
+        System.out.println(g.bfs(2));
     }
 }

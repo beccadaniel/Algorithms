@@ -1,7 +1,5 @@
 package codejamtoio2018;
 
-import shecodeafrica._2016.utils.Constants;
-
 import java.io.*;
 import java.util.Arrays;
 import java.util.Scanner;
